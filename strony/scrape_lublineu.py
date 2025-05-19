@@ -48,9 +48,11 @@ def scrape_lublineu():
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
-    event_elements = soup.find_all('div', class_='event')
+    event_elements = soup.find_all("div", class_="event")
 
     data = []
+
+    info("Rozpoczęcie szukania wydarzeń...")
 
     for event in tqdm(
         event_elements,
@@ -58,18 +60,28 @@ def scrape_lublineu():
         unit="wydarzenie",
         bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} {unit} • {elapsed} elapsed • {remaining} remaining",
         colour="green",
-        ascii=True
+        ascii=True,
     ):
         # Pobieranie tytułu i linku
         title_element = event.find("div", class_="event-title").find("a")
-        event_title = title_element.get("title", "").strip() if title_element else "Brak tytułu"
-        event_url = title_element.get("href", "").strip() if title_element else "Brak linku"
+        event_title = (
+            title_element.get("title", "").strip() if title_element else "Brak tytułu"
+        )
+        event_url = (
+            title_element.get("href", "").strip() if title_element else "Brak linku"
+        )
 
         # Pobieranie daty i godziny
-        date_elements = event.find("div", class_="event-date-time").find_all("span", class_="event-date")
+        date_elements = event.find("div", class_="event-date-time").find_all(
+            "span", class_="event-date"
+        )
         time_element = event.find("span", class_="event-time")
 
-        event_dates = [date.text.strip() for date in date_elements] if date_elements else ["Brak daty"]
+        event_dates = (
+            [date.text.strip() for date in date_elements]
+            if date_elements
+            else ["Brak daty"]
+        )
         event_time = time_element.text.strip() if time_element else "Brak godziny"
 
         # Tworzenie słownika dla wydarzenia
@@ -80,7 +92,7 @@ def scrape_lublineu():
             "miejsce": "Brak danych",  # Możesz dodać logikę do pobierania miejsca
             "udzial": "Brak danych",  # Możesz dodać logikę do pobierania informacji o udziale
             "kategoria": "Brak danych",  # Możesz dodać logikę do pobierania kategorii
-            "link_bezposredni": f"https://lublin.eu{event_url}"  # Pełny link
+            "link_bezposredni": f"https://lublin.eu{event_url}",  # Pełny link
         }
 
         data.append(event_data)
@@ -89,3 +101,46 @@ def scrape_lublineu():
     info(f"Znaleziono {len(data)} wydarzeń.")
     with open("./data/lublin_eu_data.json", "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
+    success("Szukanie wydarzeń zakończono!")
+
+    # Scrapowanie wydarzeń cyklicznych
+    info("Rozpoczęto scrapowanie wydarzeń cyklicznych...")
+
+    cykliczne_section = soup.find("div", class_="events-groups-list")
+
+    if not cykliczne_section:
+        warn("Nie znaleziono sekcji 'Wydarzenia cykliczne'")
+    else:
+        event_groups = cykliczne_section.find_all("div", class_="event-group")
+        cykliczne_data = []
+
+        for event in tqdm(
+            event_groups,
+            desc="Szukanie...",
+            unit="wydarzenie",
+            bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} {unit} • {elapsed} elapsed • {remaining} remaining",
+            colour="green",
+            ascii=True,
+        ):
+            link_element = event.find("a")
+            if link_element:
+                event_title = link_element.get("title", "").strip()
+                event_url = link_element.get("href", "").strip()
+
+                # Tworzenie słownika dla wydarzenia cyklicznego
+                event_data = {
+                    "nazwa": event_title,
+                    "link_bezposredni": f"https://lublin.eu{event_url}",  # Pełny link
+                }
+                cykliczne_data.append(event_data)
+
+        # Zapisanie danych do pliku JSON
+        with open("./data/lublin_eu_cykliczne.json", "w") as f:
+            json.dump(cykliczne_data, f, ensure_ascii=False, indent=4)
+
+        success(
+            f"Zapisano {len(cykliczne_data)} wydarzeń cyklicznych do pliku './data/lublin_eu_cykliczne.json'"
+        )
+    print()
+    success(f"Scrapowanie {base_url} zakończono!")

@@ -3,6 +3,7 @@ from utils.logmanager import get_date, error, warn, success, info, user_input
 import os
 from colorama import Fore, Back, Style
 from commands.wybierz_strone import wybierzStrone
+from utils.checkstatus import checkStatus
 
 def chooseAction():
     print(f"{Back.GREEN}Wybierz akcję:{Style.RESET_ALL}")
@@ -20,6 +21,8 @@ def chooseAction():
     if response == "3":
         info("Wybrano 3")
         print()
+        checkStatus("https://lublin.eu/kultura/wydarzenia/")
+        checkStatus("https://zoom.lublin.pl/wydarzenia/")
 
 
 def start():
