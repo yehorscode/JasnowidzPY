@@ -1,7 +1,6 @@
 from colorama import Fore, Back, Style
 import time
 import logging
-
 logging.basicConfig(
     level=logging.INFO,  # Set the minimum severity level to log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     format="%(asctime)s - %(levelname)s - %(message)s",

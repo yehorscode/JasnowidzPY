@@ -2,7 +2,6 @@ from utils.logmanager import error, warn, success, info, user_input
 import os
 def checkDependency():
     hasRequests = None
-    hasSelenium = None
     hasSoup = None
     hasAppwrite = None
     hasColorama = None
@@ -27,13 +26,6 @@ def checkDependency():
         error("Brak modulu requests")
 
     try:
-        import selenium
-        hasSelenium = True
-    except ImportError:
-        hasSelenium = False
-        error("Brak modulu selenium")
-
-    try:
         from bs4 import BeautifulSoup
         hasSoup = True
     except ImportError:
@@ -47,7 +39,7 @@ def checkDependency():
         hasAppwrite = False
         error("Brak modulu appwrite")
 
-    if hasRequests and hasSelenium and hasSoup and hasAppwrite and hasColorama and hasTQDM:
+    if hasRequests and hasSoup and hasAppwrite and hasColorama and hasTQDM:
         success("Wszystkie zaleznosci sa zainstalowane")
     else:
         if user_input("Autorozwiązanie? (y/n)") == "y":
@@ -56,4 +48,4 @@ def checkDependency():
             warn("Włącz ponownie skrypt")
         else:
             warn("Abort")
-    return hasRequests, hasSelenium, hasSoup, hasAppwrite, hasColorama, hasTQDM
+    return hasRequests, hasSoup, hasAppwrite, hasColorama, hasTQDM

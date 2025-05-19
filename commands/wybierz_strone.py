@@ -2,6 +2,8 @@ from colorama import Fore, Back, Style
 from utils.logmanager import get_date, error, warn, success, info, user_input
 from strony.scrape_lublineu import scrape_lublineu
 from strony.scrape_zoom import scrape_zoom
+
+
 def wybierzStrone():
     print(f"{Back.GREEN}Wybierz metodę scrapowania:{Style.RESET_ALL}")
     print(f"{Back.RED} 1 {Style.RESET_ALL} - Wszystko (Długo)")
