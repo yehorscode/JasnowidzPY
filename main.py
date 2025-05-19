@@ -27,11 +27,21 @@ def chooseAction():
 
 def start():
     info("Start Programu")
+    checkFolders()
     info("Zaczęto sprawdzanie dependencies...")
     checkDependency()
     success(f"Zakończono szukanie dependencies")
     print()
     chooseAction()
 
+def checkFolders():
+    if not os.path.exists("./robots"):
+        error("Folder `robots` nie istnieje")
+        os.makedirs("./robots")
+        success("Folder `robots` został utworzony")
+    if not os.path.exists("./data"):
+        error("Folder `data` nie istnieje")
+        os.makedirs("./data")
+        success("Folder `data` został utworzony")
 
 start()
