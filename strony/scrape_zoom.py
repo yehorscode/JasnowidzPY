@@ -50,6 +50,7 @@ def scrape_zoom():
     info(f"Znaleziono {len(event_elements)} elementów wydarzeń.")
 
     data = []
+    bajka_data = []
 
     info("Rozpoczenie szukania wydarzeń...")
 
@@ -77,22 +78,34 @@ def scrape_zoom():
         genre = genre_element.text.strip() if genre_element else None
 
         if title and link and place and time and genre:
-            data.append({
+            event_data = {
                 "title": title,
                 "link": link,
                 "place": place,
                 "time": time,
                 "genre": genre,
-            })
+            }
+            data.append(event_data)
+
+            if place == "Kino Bajka":
+                bajka_data.append(event_data)
 
     if len(data) == 0:
         error(f"Nie znaleziono żadnych wydarzeń")
     else:
         success(f"Znaleziono {len(data)} wydarzeń")
-        
+
+    if len(bajka_data) == 0:
+        warn("Nie znaleziono wydarzeń w Kino Bajka")
+    else:
+        success(f"Znaleziono {len(bajka_data)} wydarzeń w Kino Bajka")
+
     info("Zakończono szukanie wydarzeń.")
 
     with open("./data/zoom_events.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-    success("Zapisano dane wydarzeń do pliku JSON.")
+    with open("./data/zoom_bajka_events.json", "w", encoding="utf-8") as f:
+        json.dump(bajka_data, f, ensure_ascii=False, indent=4)
+
+    success("Zapisano dane wydarzeń do plików JSON.")

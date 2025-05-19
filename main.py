@@ -10,6 +10,7 @@ def chooseAction():
     print(f"{Back.GREEN} 1 {Style.RESET_ALL} - Wyszukaj wydarzenia")
     print(f"{Back.GREEN} 2 {Style.RESET_ALL} - Wyslij do appwrite")
     print(f"{Back.GREEN} 3 {Style.RESET_ALL} - Sprawdź status stron")
+    print(f"{Back.GREEN} 4 {Style.RESET_ALL} - Wyczyść dane, i roboty")
     response = user_input("Podaj numer akcji: ")
     if response == "1":
         info("Wybrano 1")
@@ -23,6 +24,16 @@ def chooseAction():
         print()
         checkStatus("https://lublin.eu/kultura/wydarzenia/")
         checkStatus("https://zoom.lublin.pl/wydarzenia/")
+    if response == "4":
+        info("Wybrano 4")
+        print()
+        if os.name == 'nt':  # Windows
+            os.system("del /Q .\\data\\*")
+            os.system("rmdir /S /Q .\\robots\\*")
+        else:  # Linux and macOS
+            os.system("rm -rf ./data/*")
+            os.system("rm -rf ./robots/*")
+        success("Dane zostały wyczyszczone")
 
 
 def start():
