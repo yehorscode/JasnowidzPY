@@ -84,15 +84,47 @@ def scrape_lublineu():
         )
         event_time = time_element.text.strip() if time_element else "Brak godziny"
 
+        # Wykonanie dodatkowego requestu do linku bezpośredniego
+        full_event_url = f"https://lublin.eu{event_url}"
+        event_response = requests.get(full_event_url, headers=headers)
+        if event_response.status_code != 200:
+            warn(f"Nie udało się pobrać szczegółów wydarzenia: {full_event_url}")
+            continue
+
+        event_soup = BeautifulSoup(event_response.content, "html.parser")
+
+        # Pobieranie danych z elementów HTML
+        labels = event_soup.find_all("span", class_="label")
+
+        for label in labels:
+            if label.text.strip() == "Data rozpoczęcia":
+                date_element = label.find_next_sibling("span")
+                event_date = date_element.text.strip() if date_element else "Brak danych"
+            elif label.text.strip() == "Godzina rozpoczęcia":
+                time_element = label.find_next_sibling("span")
+                event_time = time_element.text.strip() if time_element else "Brak danych"
+            elif label.text.strip() == "Miejsce":
+                place_element = label.find_next_sibling("span")
+                event_place = place_element.text.strip() if place_element else "Brak danych"
+            elif label.text.strip() == "Organizator":
+                organizer_element = label.find_next_sibling("span")
+                event_organizer = organizer_element.text.strip() if organizer_element else "Brak danych"
+            elif label.text.strip() == "Udział":
+                participation_element = label.find_next_sibling("span")
+                event_participation = participation_element.text.strip() if participation_element else "Brak danych"
+            elif label.text.strip() == "Kategoria":
+                category_element = label.find_next_sibling("span")
+                event_category = category_element.text.strip() if category_element else "Brak danych"
+
         # Tworzenie słownika dla wydarzenia
         event_data = {
             "nazwa": event_title,
             "data": " - ".join(event_dates),  # Łączenie dat w przypadku zakresu
             "godzina_rozpoczecia": event_time,
-            "miejsce": "Brak danych",  # Możesz dodać logikę do pobierania miejsca
-            "udzial": "Brak danych",  # Możesz dodać logikę do pobierania informacji o udziale
-            "kategoria": "Brak danych",  # Możesz dodać logikę do pobierania kategorii
-            "link_bezposredni": f"https://lublin.eu{event_url}",  # Pełny link
+            "miejsce": event_place if 'event_place' in locals() else "Brak danych",
+            "organizator": event_organizer if 'event_organizator' in locals() else "Brak danych",
+            "udzial": event_participation if 'event_participation' in locals() else "Brak danych",
+            "kategoria": event_category if 'event_category' in locals() else "Brak danych",
         }
 
         data.append(event_data)

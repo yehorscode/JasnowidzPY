@@ -45,7 +45,9 @@ def scrape_zoom():
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
-    event_elements = soup.find("div", class_="archive-events__items").find_all("div", class_="event-card-wrapper")
+    event_elements = soup.find("div", class_="archive-events__items").find_all(
+        "div", class_="event-card-wrapper"
+    )
 
     info(f"Znaleziono {len(event_elements)} elementów wydarzeń.")
 
@@ -71,11 +73,30 @@ def scrape_zoom():
         title = title_element.text.strip() if title_element else None
         link = link_element["href"] if link_element else None
         if place_element:
-            place = place_element.find("span").text.strip() if place_element.find("span") else None
+            place = (
+                place_element.find("span").text.strip()
+                if place_element.find("span")
+                else None
+            )
         else:
             place = None
         time = time_element.text.strip() if time_element else None
         genre = genre_element.text.strip() if genre_element else None
+
+        link = link_element["href"] if link_element else None
+
+        if link:
+        # Wykonaj dodatkowy request do linku
+            link_response = requests.get(link, headers=headers)
+        if link_response.status_code == 200:
+            # Scrapuj potrzebne dane z linku
+            link_soup = BeautifulSoup(link_response.content, "html.parser")
+            bilety_element = link_soup.find("p", text="Bilety:")
+            if bilety_element:
+                bilety_text = bilety_element.find_next("p").text.strip()
+                event_data["bilety"] = bilety_text
+        else:
+            error(f"Błąd podczas pobierania linku: {link_response.status_code}")
 
         if title and link and place and time and genre:
             event_data = {
@@ -84,11 +105,16 @@ def scrape_zoom():
                 "place": place,
                 "time": time,
                 "genre": genre,
+                "bilety": None,  # Dodaj to pole
             }
-            data.append(event_data)
+        if bilety_element:
+            bilety_text = bilety_element.find_next("p").text.strip()
+            event_data["bilety"] = bilety_text
 
-            if place == "Kino Bajka":
-                bajka_data.append(event_data)
+        data.append(event_data)
+
+        if place == "Kino Bajka":
+            bajka_data.append(event_data)
 
     if len(data) == 0:
         error(f"Nie znaleziono żadnych wydarzeń")
