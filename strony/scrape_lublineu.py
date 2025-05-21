@@ -125,6 +125,7 @@ def scrape_lublineu():
             "organizator": event_organizer if 'event_organizator' in locals() else "Brak danych",
             "udzial": event_participation if 'event_participation' in locals() else "Brak danych",
             "kategoria": event_category if 'event_category' in locals() else "Brak danych",
+            "link": full_event_url
         }
 
         data.append(event_data)

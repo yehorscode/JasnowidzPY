@@ -85,31 +85,27 @@ def scrape_zoom():
 
         link = link_element["href"] if link_element else None
 
-        if link:
-        # Wykonaj dodatkowy request do linku
-            link_response = requests.get(link, headers=headers)
-        if link_response.status_code == 200:
-            # Scrapuj potrzebne dane z linku
-            link_soup = BeautifulSoup(link_response.content, "html.parser")
-            bilety_element = link_soup.find("p", text="Bilety:")
-            if bilety_element:
-                bilety_text = bilety_element.find_next("p").text.strip()
-                event_data["bilety"] = bilety_text
-        else:
-            error(f"Błąd podczas pobierania linku: {link_response.status_code}")
+        event_data = {
+            "title": title,
+            "link": link,
+            "place": place,
+            "time": time,
+            "genre": genre,
+            "bilety": None,  # Dodaj to pole
+        }
 
-        if title and link and place and time and genre:
-            event_data = {
-                "title": title,
-                "link": link,
-                "place": place,
-                "time": time,
-                "genre": genre,
-                "bilety": None,  # Dodaj to pole
-            }
-        if bilety_element:
-            bilety_text = bilety_element.find_next("p").text.strip()
-            event_data["bilety"] = bilety_text
+        if link:
+            # Wykonaj dodatkowy request do linku
+            link_response = requests.get(link, headers=headers)
+            if link_response.status_code == 200:
+                # Scrapuj potrzebne dane z linku
+                link_soup = BeautifulSoup(link_response.content, "html.parser")
+                bilety_element = link_soup.find("p", text="Bilety:")
+                if bilety_element:
+                    bilety_text = bilety_element.find_next("p").text.strip()
+                    event_data["bilety"] = bilety_text
+            else:
+                error(f"Błąd podczas pobierania linku: {link_response.status_code}")
 
         data.append(event_data)
 
