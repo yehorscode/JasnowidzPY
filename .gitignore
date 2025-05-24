@@ -2,3 +2,5 @@ config.py
 scraper.log
 robots
 data
+*.pyc
+*.cpython-311.pyc
